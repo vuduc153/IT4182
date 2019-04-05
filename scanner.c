@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "reader.h"
 #include "charcode.h"
@@ -44,24 +45,24 @@ void skipComment() {
     readChar();
   }
   if (state != 2) 
-    error(ERR_ENDOFCOMMENT, lineNo, colNo);
+    error(ERR_END_OF_COMMENT, lineNo, colNo);
 }
 
 Token* readIdentKeyword(void) {
   Token *token = makeToken(TK_NONE, lineNo, colNo);
   int count = 1;
 
-  token->string[0] = (char)currentChar;
+  token->string[0] = toupper((char)currentChar);
   readChar();
 
   while ((currentChar != EOF) && 
 	 ((charCodes[currentChar] == CHAR_LETTER) || (charCodes[currentChar] == CHAR_DIGIT))) {
-    if (count <= MAX_IDENT_LEN) token->string[count++] = (char)currentChar;
+    if (count <= MAX_IDENT_LEN) token->string[count++] = toupper((char)currentChar);
     readChar();
   }
 
   if (count > MAX_IDENT_LEN) {
-    error(ERR_IDENTTOOLONG, token->lineNo, token->colNo);
+    error(ERR_IDENT_TOO_LONG, token->lineNo, token->colNo);
     return token;
   }
 
@@ -94,7 +95,7 @@ Token* readConstChar(void) {
   readChar();
   if (currentChar == EOF) {
     token->tokenType = TK_NONE;
-    error(ERR_INVALIDCHARCONSTANT, token->lineNo, token->colNo);
+    error(ERR_INVALID_CONSTANT_CHAR, token->lineNo, token->colNo);
     return token;
   }
     
@@ -104,7 +105,7 @@ Token* readConstChar(void) {
   readChar();
   if (currentChar == EOF) {
     token->tokenType = TK_NONE;
-    error(ERR_INVALIDCHARCONSTANT, token->lineNo, token->colNo);
+    error(ERR_INVALID_CONSTANT_CHAR, token->lineNo, token->colNo);
     return token;
   }
 
@@ -113,7 +114,7 @@ Token* readConstChar(void) {
     return token;
   } else {
     token->tokenType = TK_NONE;
-    error(ERR_INVALIDCHARCONSTANT, token->lineNo, token->colNo);
+    error(ERR_INVALID_CONSTANT_CHAR, token->lineNo, token->colNo);
     return token;
   }
 }
@@ -174,16 +175,12 @@ Token* getToken(void) {
       return makeToken(SB_NEQ, ln, cn);
     } else {
       token = makeToken(TK_NONE, ln, cn);
-      error(ERR_INVALIDSYMBOL, ln, cn);
+      error(ERR_INVALID_SYMBOL, ln, cn);
       return token;
     }
   case CHAR_COMMA:
     token = makeToken(SB_COMMA, lineNo, colNo);
     readChar(); 
-    return token;
-  case CHAR_QUESTIONMARK:
-    token = makeToken(SB_QUESTIONMARK, lineNo, colNo);
-    readChar();
     return token;
   case CHAR_PERIOD:
     ln = lineNo;
@@ -231,7 +228,7 @@ Token* getToken(void) {
     return token;
   default:
     token = makeToken(TK_NONE, lineNo, colNo);
-    error(ERR_INVALIDSYMBOL, lineNo, colNo);
+    error(ERR_INVALID_SYMBOL, lineNo, colNo);
     readChar(); 
     return token;
   }
@@ -300,7 +297,6 @@ void printToken(Token *token) {
   case SB_RPAR: printf("SB_RPAR\n"); break;
   case SB_LSEL: printf("SB_LSEL\n"); break;
   case SB_RSEL: printf("SB_RSEL\n"); break;
-  case SB_QUESTIONMARK: printf("SB_QUESTIONMARK\n"); break;
   }
 }
 
