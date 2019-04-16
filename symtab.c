@@ -313,16 +313,6 @@ void exitBlock(void) {
   symtab->currentScope = symtab->currentScope->outer;
 }
 
-Object* lookupObject(char *name) {
-  Object *obj;
-  Scope *temp = symtab->currentScope;
-  do {
-    obj = findObject(temp->objList, name);
-    temp = temp->outer;
-  } while(obj == NULL && temp != NULL);
-  return obj;
-}
-
 void declareObject(Object* obj) {
   if (obj->kind == OBJ_PARAMETER) {
     Object* owner = symtab->currentScope->owner;
