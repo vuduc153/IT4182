@@ -57,6 +57,7 @@ void printObject(Object* obj, int indent) {
     pad(indent);
     printf("Var %s : ", obj->name);
     printType(obj->varAttrs->type);
+    printf(" at offset %d", obj->varAttrs->localOffset);
     break;
   case OBJ_PARAMETER:
     pad(indent);
@@ -65,22 +66,23 @@ void printObject(Object* obj, int indent) {
     else
       printf("Param VAR %s : ", obj->name);
     printType(obj->paramAttrs->type);
+    printf(" at offset %d", obj->paramAttrs->localOffset);
     break;
   case OBJ_FUNCTION:
     pad(indent);
     printf("Function %s : ",obj->name);
     printType(obj->funcAttrs->returnType);
-    printf("\n");
+    printf(" at address %d\n", obj->funcAttrs->codeAddress);
     printScope(obj->funcAttrs->scope, indent + 4);
     break;
   case OBJ_PROCEDURE:
     pad(indent);
-    printf("Procedure %s\n",obj->name);
+    printf("Procedure %s at address %d\n",obj->name, obj->procAttrs->codeAddress);
     printScope(obj->procAttrs->scope, indent + 4);
     break;
   case OBJ_PROGRAM:
     pad(indent);
-    printf("Program %s\n",obj->name);
+    printf("Program %s at address %d\n",obj->name, obj->progAttrs->codeAddress);
     printScope(obj->progAttrs->scope, indent + 4);
     break;
   }

@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "debug.h"
 #include "semantics.h"
 #include "error.h"
 
@@ -81,7 +82,7 @@ Object* checkDeclaredFunction(char* name) {
 
 Object* checkDeclaredProcedure(char* name) {
   Object* obj = lookupObject(name);
-  if (obj == NULL)
+  if (obj == NULL) 
     error(ERR_UNDECLARED_PROCEDURE,currentToken->lineNo, currentToken->colNo);
   if (obj->kind != OBJ_PROCEDURE)
     error(ERR_INVALID_PROCEDURE,currentToken->lineNo, currentToken->colNo);
@@ -91,6 +92,8 @@ Object* checkDeclaredProcedure(char* name) {
 
 Object* checkDeclaredLValueIdent(char* name) {
   Object* obj = lookupObject(name);
+  Scope* scope;
+
   if (obj == NULL)
     error(ERR_UNDECLARED_IDENT,currentToken->lineNo, currentToken->colNo);
 
@@ -99,11 +102,15 @@ Object* checkDeclaredLValueIdent(char* name) {
   case OBJ_PARAMETER:
     break;
   case OBJ_FUNCTION:
-    if (obj != symtab->currentScope->owner) 
-      error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
+    scope = symtab->currentScope;
+    while ((scope != NULL) && (scope != obj->funcAttrs->scope)) 
+      scope = scope->outer;
+
+    if (scope == NULL)
+      error(ERR_INVALID_IDENT,currentToken->lineNo, currentToken->colNo);
     break;
   default:
-    error(ERR_INVALID_LVALUE,currentToken->lineNo, currentToken->colNo);
+    error(ERR_INVALID_IDENT,currentToken->lineNo, currentToken->colNo);
   }
 
   return obj;
@@ -111,35 +118,32 @@ Object* checkDeclaredLValueIdent(char* name) {
 
 
 void checkIntType(Type* type) {
-  if(type == NULL || type->typeClass != TP_INT)
-    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  if ((type != NULL) && (type->typeClass == TP_INT))
+    return;
+  else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkCharType(Type* type) {
-  if(type == NULL || type->typeClass != TP_CHAR)
-    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  if ((type != NULL) && (type->typeClass == TP_CHAR))
+    return;
+  else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkBasicType(Type* type) {
-  if(type == NULL || (type->typeClass != TP_INT && type->typeClass != TP_CHAR))
-    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  if ((type != NULL) && ((type->typeClass == TP_INT) || (type->typeClass == TP_CHAR)))
+    return;
+  else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkArrayType(Type* type) {
-  if(type == NULL || type->typeClass != TP_ARRAY)
-    error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
+  if ((type != NULL) && (type->typeClass == TP_ARRAY))
+    return;
+  else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 void checkTypeEquality(Type* type1, Type* type2) {
-  if(type1 == NULL || type2 == NULL)
+  if (compareType(type1, type2) == 0)
     error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
-  if (type1->typeClass == type2->typeClass) {
-    if (type1->typeClass == TP_ARRAY) {
-      if (type1->arraySize == type2->arraySize)
-        return checkTypeEquality(type1->elementType, type2->elementType);
-      else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
-    }
-  } else error(ERR_TYPE_INCONSISTENCY, currentToken->lineNo, currentToken->colNo);
 }
 
 
