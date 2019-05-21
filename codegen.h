@@ -84,4 +84,6 @@ void cleanCodeBuffer(void);
 
 int serialize(char* fileName);
 
+int computeNestedLevel(Scope *scope);
+
 #endif
