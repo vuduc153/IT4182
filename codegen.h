@@ -12,11 +12,11 @@
 
 #define RESERVED_WORDS 4
 
-#define PROCEDURE_PARAM_COUNT(proc) (proc->procAttrs->numOfParams)
+#define PROCEDURE_PARAM_COUNT(proc) (proc->procAttrs->paramCount)
 #define PROCEDURE_SCOPE(proc) (proc->procAttrs->scope)
 #define PROCEDURE_FRAME_SIZE(proc) (proc->procAttrs->scope->frameSize)
 
-#define FUNCTION_PARAM_COUNT(func) (func->funcAttrs->numOfParams)
+#define FUNCTION_PARAM_COUNT(func) (func->funcAttrs->paramCount)
 #define FUNCTION_SCOPE(func) (func->funcAttrs->scope)
 #define FUNCTION_FRAME_SIZE(func) (func->funcAttrs->scope->frameSize)
 
@@ -34,11 +34,25 @@
 #define RETURN_ADDRESS_OFFSET 2
 #define STATIC_LINK_OFFSET 3
 
+int computeNestedLevel(Scope* scope);
+
 void genVariableAddress(Object* var);
 void genVariableValue(Object* var);
 
+void genParameterAddress(Object* param); 
+void genParameterValue(Object* param);
+
+void genReturnValueAddress(Object* func);
+void genReturnValueAddress(Object* func);
+
+void genArrayElementAddress(Type* arrayType);
+void genArrayElementValue(Type* arrayType);
+
 void genPredefinedProcedureCall(Object* proc);
+void genProcedureCall(Object* proc);
+
 void genPredefinedFunctionCall(Object* func);
+void genFunctionCall(Object* func);
 
 void genLA(int level, int offset);
 void genLV(int level, int offset);
@@ -83,7 +97,5 @@ void printCodeBuffer(void);
 void cleanCodeBuffer(void);
 
 int serialize(char* fileName);
-
-int computeNestedLevel(Scope *scope);
 
 #endif
